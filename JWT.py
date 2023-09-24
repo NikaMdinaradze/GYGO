@@ -9,8 +9,8 @@ SECRET_KEY = "xidistavsshevkratpirobachvengavxdetgvidzlidzmania"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-USERNAME = "admin123"
-PASSWORD = "admin123"
+USERNAME = "mefelomi"
+PASSWORD = "catmfreni"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

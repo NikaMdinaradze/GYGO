@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 import schemas, models
 from database import get_db
 from sqlalchemy.orm import Session
@@ -18,25 +18,34 @@ random_texts = {
     'product': ['გაიკითხე ამაზე იაფად თუ ნახე, მოდი და დაგიკლებ', 'კარგი არჩევანია']
 }
 
-@router.get('/search', status_code=status.HTTP_200_OK, response_model=List[schemas.Preview])
-def search(query:str, db:Session = Depends(get_db)):
-
+@router.get('/places', status_code=status.HTTP_200_OK, response_model=List[schemas.Preview])
+def filter_and_search(
+    query: str = Query(None, description="Search query"),
+    category: str = Query(None, description="Category filter"),
+    address: str = Query(None, description="Address filter"),
+    db: Session = Depends(get_db)
+):
     search_conditions = (
         models.Places.name.ilike(f"%{query}%"),
         models.Places.category.ilike(f"%{query}%"),
         models.Places.address.ilike(f"%{query}%")
     )
 
-    places = db.query(models.Places).filter(or_(*search_conditions)).all()
+    places = db.query(models.Places)
+
+    if category:
+        places = places.filter(models.Places.category == category)
+    if address:
+        places = places.filter(models.Places.address == address)
+    
+    if query:
+        places = places.filter(or_(*search_conditions))
+    
+    places = places.all()
 
     return places
 
-@router.get('/get_all', status_code=status.HTTP_200_OK, response_model=List[schemas.Preview])
-def get_all(db:Session = Depends(get_db)):
-    places = db.query(models.Places).all()
-    return places
-
-@router.get("/get/{id}", status_code=status.HTTP_200_OK)
+@router.get("/places/{id}", status_code=status.HTTP_200_OK)
 def getID(id:int, db:Session = Depends(get_db)):
     place = db.query(models.Places).filter(models.Places.id == id).first()
 
@@ -45,8 +54,8 @@ def getID(id:int, db:Session = Depends(get_db)):
     
     return place
 
-@router.get('/text_gen/{page}}', status_code=status.HTTP_200_OK)
-def getText(page):
+@router.get('/text/{page}', status_code=status.HTTP_200_OK)
+def getText(page:str):
     try:
         random_text = random.choice(random_texts[page])
     except:
@@ -54,22 +63,8 @@ def getText(page):
     
     return {'random text':random_text}
 
-
-
-@router.get('/filter_by', status_code=status.HTTP_200_OK)
-def filter(db:Session = Depends(get_db),category:str = None, address:str = None):
-    places = db.query(models.Places)
-    if  category:
-        places = places.filter(models.Places.category == category)
-    if  address:
-        places = places.filter(models.Places.address == address)
-
-    if places:
-            places = places.all()
-            
-    return places
     
-@router.get("/get_banners")
+@router.get("/banners")
 def get_image_paths():
     files = os.listdir(BANNER_FOLDER)
 

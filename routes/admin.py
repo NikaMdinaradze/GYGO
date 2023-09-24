@@ -34,7 +34,7 @@ def login(response:OAuth2PasswordRequestForm = Depends()):
     
     return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Username")
 
-@router.post("/upload", status_code=status.HTTP_201_CREATED)
+@router.post("/places", status_code=status.HTTP_201_CREATED)
 def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db), authentic: bool = Depends(get_current_admin_user)):
     new_place = models.Places(
         name=response.name,
@@ -64,7 +64,7 @@ def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db), authen
     return new_place
     
 
-@router.post("/photo_upload/", status_code=status.HTTP_201_CREATED)
+@router.post("/places/photo", status_code=status.HTTP_201_CREATED)
 async def upload_file(file: UploadFile = File(...),authentic: bool = Depends(get_current_admin_user)):
     unique_filename = FileNameGenerator(file.filename)
     file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
@@ -74,7 +74,7 @@ async def upload_file(file: UploadFile = File(...),authentic: bool = Depends(get
 
     return {"path":f'/{UPLOAD_FOLDER}/{unique_filename}'}
 
-@router.post("/upload_banner/", status_code=status.HTTP_201_CREATED)
+@router.post("/banner", status_code=status.HTTP_201_CREATED)
 async def upload_banner(file: UploadFile = File(...),authentic: bool = Depends(get_current_admin_user)):
     unique_filename = FileNameGenerator(file.filename)
     file_path = os.path.join(BANNER_FOLDER, unique_filename)
@@ -86,7 +86,7 @@ async def upload_banner(file: UploadFile = File(...),authentic: bool = Depends(g
 
 
 
-@router.put("/update/{id}", status_code=status.HTTP_202_ACCEPTED)
+@router.put("/places/{id}", status_code=status.HTTP_202_ACCEPTED)
 def update(id:int,response:schemas.UploadPlaces, db:Session = Depends(get_db),authentic: bool = Depends(get_current_admin_user)):
     place = db.query(models.Places).filter(models.Places.id == id).first()
 
@@ -118,7 +118,7 @@ def update(id:int,response:schemas.UploadPlaces, db:Session = Depends(get_db),au
     db.refresh(place)
     return place
      
-@router.delete('/delete/{id}',status_code=status.HTTP_202_ACCEPTED)
+@router.delete('/places/{id}',status_code=status.HTTP_202_ACCEPTED)
 def delete(id:int, db:Session = Depends(get_db),authentic: bool = Depends(get_current_admin_user)):
     place = db.query(models.Places).filter(models.Places.id==id)
     if not place.first():

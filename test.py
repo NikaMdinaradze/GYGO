@@ -1,8 +1,7 @@
 import uuid
 
 
-
-def FileNameGenerator(filename):
+async def FileNameGenerator(filename):
     extension = filename.split(".")[-1]
     id = uuid.uuid4()
     return f"{id}.{extension}"
