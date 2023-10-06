@@ -22,7 +22,7 @@ router = APIRouter(
 )
 
 
-@router.post("/login", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/login",status_code=status.HTTP_202_ACCEPTED)
 def login(response:OAuth2PasswordRequestForm = Depends()):
     if response.username == USERNAME:
 
@@ -56,7 +56,7 @@ def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db), authen
         main_visit=response.main_visit,
         custom_price=response.custom_price,
         map_link=response.map_link,
-        views=response.viewvs
+        views=response.views
     )
     db.add(new_place)
     db.commit()
@@ -112,18 +112,29 @@ def update(id:int,response:schemas.UploadPlaces, db:Session = Depends(get_db),au
     place.main_visit = response.main_visit
     place.custom_price = response.custom_price
     place.map_link = response.map_link
-    place.views = response.viewvs
+    place.views = response.views
 
     db.commit()
     db.refresh(place)
     return place
      
-@router.delete('/places/{id}',status_code=status.HTTP_202_ACCEPTED)
+@router.delete('/places/{id}',status_code=status.HTTP_204_NO_CONTENT)
 def delete(id:int, db:Session = Depends(get_db),authentic: bool = Depends(get_current_admin_user)):
     place = db.query(models.Places).filter(models.Places.id==id)
+
     if not place.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
     
+    photos = place.first().photos_url.split(',')
+    photos.append(place.first().logo)
+    print(photos)
+    
+    for photo in photos:
+        if photo:
+                file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(photo))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
     place.delete(synchronize_session = False)
     db.commit()
     return {"detail":f"Object {id} Deleted"}

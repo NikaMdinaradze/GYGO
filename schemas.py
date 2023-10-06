@@ -42,7 +42,7 @@ class UploadPlaces(BaseModel):
     youtube: str
     custom_price: str
     map_link: str
-    viewvs: int
+    views: int
 
     class Config():
         form_attributes = True
