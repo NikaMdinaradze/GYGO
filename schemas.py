@@ -6,6 +6,7 @@ class Preview(BaseModel):
     id:int
     name: str
     # address: str
+    category: str
     logo: str
     description: str
     monday :str #Time or Closed
