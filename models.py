@@ -22,6 +22,9 @@ class Places(Base):
     address = Column(String) #statically typed
     number = Column(String)
     facebook = Column(String)
+    instagram = Column(String)
+    tiktok = Column(String)
+    youtube = Column(String)
     main_price = Column(Integer)
     main_visit = Column(String)
     custom_price = Column(String)
