@@ -36,33 +36,11 @@ def login(response:OAuth2PasswordRequestForm = Depends()):
 
 @router.post("/places", status_code=status.HTTP_201_CREATED)
 def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db), authentic: bool = Depends(get_current_admin_user)):
-    new_place = models.Places(
-        name=response.name,
-        category=response.category,
-        logo=response.logo,
-        photos_url=response.photos_url,
-        monday = response.monday,
-        tuesday = response.tuesday,
-        wednesday = response.wednesday,
-        thursday = response.thursday,
-        friday = response.friday,
-        saturday = response.saturday,
-        sunday = response.sunday,
-        description=response.description,
-        address=response.address,
-        number=response.number,
-        facebook=response.facebook,
-        main_price=response.main_price,
-        main_visit=response.main_visit,
-        custom_price=response.custom_price,
-        map_link=response.map_link,
-        views=response.views
-    )
+    new_place = models.Places(**response.__dict__)
     db.add(new_place)
     db.commit()
     db.refresh(new_place)
-    return new_place
-    
+    return {"details":"Place Has Uploaded", "ststus":status.HTTP_201_CREATED}
 
 @router.post("/places/photo", status_code=status.HTTP_201_CREATED)
 async def upload_file(file: UploadFile = File(...),authentic: bool = Depends(get_current_admin_user)):

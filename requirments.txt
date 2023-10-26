@@ -1,9 +1,0 @@
-fastapi
-pydantic
-sqlalchemy
-typing
-passlib
-uvicorn
-python-jose
-python-multipart
-gunicorn
