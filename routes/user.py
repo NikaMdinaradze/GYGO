@@ -13,17 +13,19 @@ router = APIRouter(
 )
 
 random_texts = {
-    'home':['სალამი, მეგობარო!', 'ძმას ვეჭიდავე'],
-    'search':['მოძებნე შენთვის სასურველი ადგილი გასართობად', 'წადი საცა გინდა'],
+    'home': ['სალამი, მეგობარო!', 'ძმას ვეჭიდავე'],
+    'search': ['მოძებნე შენთვის სასურველი ადგილი გასართობად', 'წადი საცა გინდა'],
     'product': ['გაიკითხე ამაზე იაფად თუ ნახე, მოდი და დაგიკლებ', 'კარგი არჩევანია']
 }
 
+
 @router.get('/places', status_code=status.HTTP_200_OK, response_model=List[schemas.Preview])
 def filter_and_search(
-    query: str = Query(None, description="Search query"),
-    category: str = Query(None, description="Category filter"),
-    address: str = Query(None, description="Address filter"),
-    db: Session = Depends(get_db)
+        query: str = Query(None, description="Search query"),
+        category: str = Query(None, description="Category filter"),
+        district
+        : str = Query(None, description="Address filter"),
+        db: Session = Depends(get_db)
 ):
     search_conditions = (
         models.Places.name.ilike(f"%{query}%"),
@@ -35,35 +37,39 @@ def filter_and_search(
 
     if category:
         places = places.filter(models.Places.category == category)
-    if address:
-        places = places.filter(models.Places.address == address)
-    
+    if district:
+        places = places.filter(models.Places.district == district)
+
     if query:
         places = places.filter(or_(*search_conditions))
-    
+
     places = places.all()
 
     return places
 
+
 @router.get("/places/{id}", status_code=status.HTTP_200_OK)
-def getID(id:int, db:Session = Depends(get_db)):
+def getID(id: int, db: Session = Depends(get_db)):
     place = db.query(models.Places).filter(models.Places.id == id).first()
 
     if not place:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
-    
+    print(place.views)
+    place.views += 1
+    db.commit()
     return place
 
+
 @router.get('/text/{page}', status_code=status.HTTP_200_OK)
-def getText(page:str):
+def getText(page: str):
     try:
         random_text = random.choice(random_texts[page])
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
-    
-    return {'random text':random_text}
 
-    
+    return {'random text': random_text}
+
+
 @router.get("/banners")
 def get_image_paths():
     files = os.listdir(BANNER_FOLDER)
@@ -72,4 +78,4 @@ def get_image_paths():
 
     image_paths = [f'/{BANNER_FOLDER}/{file}' for file in image_files]
 
-    return {"banners":image_paths}
+    return {"banners": image_paths}

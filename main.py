@@ -24,10 +24,8 @@ app.mount("/banners", StaticFiles(directory="banners"), name="banners")
 models.Base.metadata.create_all(engine)
 
 
-
 app.include_router(admin.router)
 app.include_router(user.router)
-
 
 
 if __name__ == "__main__":

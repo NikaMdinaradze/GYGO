@@ -40,7 +40,7 @@ def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db), authen
     db.add(new_place)
     db.commit()
     db.refresh(new_place)
-    return {"details":"Place Has Uploaded", "ststus":status.HTTP_201_CREATED}
+    return {"details": "Place Has Uploaded", "ststus":status.HTTP_201_CREATED}
 
 @router.post("/places/photo", status_code=status.HTTP_201_CREATED)
 async def upload_file(file: UploadFile = File(...),authentic: bool = Depends(get_current_admin_user)):

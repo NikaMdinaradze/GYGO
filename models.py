@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from database import Base
 
+
 class Places(Base):
     __tablename__ = "places"
 
@@ -8,9 +9,9 @@ class Places(Base):
     name = Column(String)
     category = Column(String)
     logo = Column(String)
-    photos_url = Column(String) #will be list after migration
+    photos_url = Column(String)  # will be list after migration
 
-    monday = Column(String) #Time or Closed
+    monday = Column(String)  # Time or Closed
     tuesday = Column(String)
     wednesday = Column(String) 
     thursday = Column(String)
@@ -19,12 +20,17 @@ class Places(Base):
     sunday = Column(String) 
 
     description = Column(String)
-    address = Column(String) #statically typed
+    district = Column(String)
+    full_address = Column(String)
+
     number = Column(String)
     facebook = Column(String)
     instagram = Column(String)
     tiktok = Column(String)
     youtube = Column(String)
+    discord = Column(String)
+    telegram = Column(String)
+
     main_price = Column(Integer)
     main_visit = Column(String)
     custom_price = Column(String)
