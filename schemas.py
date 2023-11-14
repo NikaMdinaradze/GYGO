@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class Preview(BaseModel):
     id: int
     name: str
-    address: str
+    district: str
     category: str
     logo: str
     description: str

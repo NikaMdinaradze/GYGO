@@ -30,7 +30,7 @@ def filter_and_search(
     search_conditions = (
         models.Places.name.ilike(f"%{query}%"),
         models.Places.category.ilike(f"%{query}%"),
-        models.Places.address.ilike(f"%{query}%")
+        models.Places.district.ilike(f"%{query}%")
     )
 
     places = db.query(models.Places)
@@ -54,9 +54,10 @@ def getID(id: int, db: Session = Depends(get_db)):
 
     if not place:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
-    print(place.views)
+
     place.views += 1
     db.commit()
+    db.refresh(place)
     return place
 
 
