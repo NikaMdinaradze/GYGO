@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 
-#schema of places in the preview
 class Preview(BaseModel):
     id: int
     name: str
@@ -16,6 +15,9 @@ class Preview(BaseModel):
     friday: str
     saturday: str
     sunday: str
+    main_price: int
+    main_visit: str
+    photos_url: str
 
     class Config:
         form_attributes = True
