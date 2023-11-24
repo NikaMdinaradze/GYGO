@@ -14,7 +14,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],  # You can restrict this to specific headers
+    allow_headers=["*"],
 )
 
 

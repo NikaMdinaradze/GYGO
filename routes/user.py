@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Query
-import schemas, models
+import schemas
+import models
 from database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -49,7 +50,7 @@ def filter_and_search(
 
 
 @router.get("/places/{id}", status_code=status.HTTP_200_OK)
-def getID(id: int, db: Session = Depends(get_db)):
+def get_id(id: int, db: Session = Depends(get_db)):
     place = db.query(models.Places).filter(models.Places.id == id).first()
 
     if not place:
@@ -62,7 +63,7 @@ def getID(id: int, db: Session = Depends(get_db)):
 
 
 @router.get('/text/{page}', status_code=status.HTTP_200_OK)
-def getText(page: str):
+def get_text(page: str):
     try:
         random_text = random.choice(random_texts[page])
     except:

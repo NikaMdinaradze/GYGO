@@ -9,9 +9,9 @@ class Places(Base):
     name = Column(String)
     category = Column(String)
     logo = Column(String)
-    photos_url = Column(String)  # will be list after migration
+    photos_url = Column(String)
 
-    monday = Column(String)  # Time or Closed
+    monday = Column(String)
     tuesday = Column(String)
     wednesday = Column(String) 
     thursday = Column(String)

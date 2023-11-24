@@ -1,7 +1,12 @@
-import uuid
+from dotenv import load_dotenv
+import os
 
 
-async def FileNameGenerator(filename):
-    extension = filename.split(".")[-1]
-    id = uuid.uuid4()
-    return f"{id}.{extension}"
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+USERNAME = os.getenv("LOGIN")
+PASSWORD = os.getenv("PASSWORD")
+
+print(USERNAME, PASSWORD)
