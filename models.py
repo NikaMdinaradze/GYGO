@@ -36,3 +36,4 @@ class Places(Base):
     custom_price = Column(String)
     map_link = Column(String)
     views = Column(Integer)
+

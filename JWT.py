@@ -1,10 +1,10 @@
-from datetime import timedelta, datetime
-from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, Depends
+from datetime import timedelta, datetime
+from jose import JWTError, jwt
+from dotenv import load_dotenv
 from typing import Annotated
 from schemas import Login
-from dotenv import load_dotenv
 import os
 
 

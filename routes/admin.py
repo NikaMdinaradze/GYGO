@@ -1,11 +1,11 @@
-from fastapi import APIRouter, status, Depends, HTTPException, UploadFile, File
-from fastapi.security import OAuth2PasswordRequestForm
 from JWT import create_access_token, USERNAME, PASSWORD, get_current_admin_user
-from fastapi import UploadFile
+from fastapi import APIRouter, status, Depends, HTTPException, File
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from fastapi import UploadFile
+from database import get_db
 import schemas
 import models
-from database import get_db
 import uuid
 import os
 
@@ -15,8 +15,13 @@ BANNER_FOLDER = "banners"
 
 def file_name_generator(filename):
     extension = filename.split(".")[-1]
-    id = uuid.uuid4()
-    return f"{id}.{extension}"
+    random_id = uuid.uuid4()
+    return f"{random_id}.{extension}"
+
+
+def check_authorization(authentic: bool):
+    if not authentic:
+        return {"details": "Forbidden", "status": status.HTTP_401_UNAUTHORIZED}
 
 
 router = APIRouter(
@@ -38,17 +43,23 @@ def login(response: OAuth2PasswordRequestForm = Depends()):
 
 
 @router.post("/places", status_code=status.HTTP_201_CREATED)
-def upload(response: schemas.UploadPlaces, db: Session = Depends(get_db),
+def upload(response: schemas.Places, db: Session = Depends(get_db),
            authentic: bool = Depends(get_current_admin_user)):
+
+    check_authorization(authentic)
+
     new_place = models.Places(**response.__dict__)
     db.add(new_place)
     db.commit()
     db.refresh(new_place)
-    return {"details": "Place Has Uploaded", "ststus": status.HTTP_201_CREATED}
+    return {"details": "Place Has Uploaded", "status": status.HTTP_201_CREATED}
 
 
 @router.post("/places/photo", status_code=status.HTTP_201_CREATED)
 async def upload_file(file: UploadFile = File(...), authentic: bool = Depends(get_current_admin_user)):
+
+    check_authorization(authentic)
+
     unique_filename = file_name_generator(file.filename)
     file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
@@ -60,6 +71,9 @@ async def upload_file(file: UploadFile = File(...), authentic: bool = Depends(ge
 
 @router.post("/banner", status_code=status.HTTP_201_CREATED)
 async def upload_banner(file: UploadFile = File(...), authentic: bool = Depends(get_current_admin_user)):
+
+    check_authorization(authentic)
+
     unique_filename = file_name_generator(file.filename)
     file_path = os.path.join(BANNER_FOLDER, unique_filename)
 
@@ -69,50 +83,32 @@ async def upload_banner(file: UploadFile = File(...), authentic: bool = Depends(
     return {'details': 'great success'}
 
 
-@router.put("/places/{id}", status_code=status.HTTP_202_ACCEPTED)
-def update(id: int, response: schemas.UploadPlaces, db: Session = Depends(get_db),
+@router.put("/places/{place_id}", status_code=status.HTTP_202_ACCEPTED)
+def update(place_id: int, response: schemas.Places, db: Session = Depends(get_db),
            authentic: bool = Depends(get_current_admin_user)):
-    place = db.query(models.Places).filter(models.Places.id == id).first()
 
+    check_authorization(authentic)
+
+    place = db.query(models.Places).filter(models.Places.id == place_id).first()
     if not place:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
+    dict_response = response.__dict__
 
-    place.name = response.name
-    place.category = response.category
-    place.logo = response.logo
-    place.photos_url = response.photos_url
-    place.monday = response.monday
-    place.tuesday = response.tuesday
-    place.wednesday = response.wednesday
-    place.thursday = response.thursday
-    place.friday = response.friday
-    place.saturday = response.saturday
-    place.sunday = response.sunday
-    place.description = response.description
-    place.address = response.address
-    place.number = response.number
-    place.facebook = response.facebook
-    place.main_price = response.main_price
-    place.main_visit = response.main_visit
-    place.custom_price = response.custom_price
-    place.map_link = response.map_link
-    place.views = response.views
+    for key, value in dict_response.items():
+        setattr(place, key, value)
 
     db.commit()
-    db.refresh(place)
-    return place
+    return {"details": f"Place {place_id} Has Updated", "status": status.HTTP_202_ACCEPTED}
 
 
-@router.delete('/places/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete(id: int, db: Session = Depends(get_db), authentic: bool = Depends(get_current_admin_user)):
-    place = db.query(models.Places).filter(models.Places.id == id)
+@router.delete('/places/{place_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete(place_id: int, db: Session = Depends(get_db), authentic: bool = Depends(get_current_admin_user)):
+    place = db.query(models.Places).filter(models.Places.id == place_id)
 
-    if not place.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
+    check_authorization(authentic)
 
     photos = place.first().photos_url.split(',')
     photos.append(place.first().logo)
-    print(photos)
 
     for photo in photos:
         if photo:
@@ -120,6 +116,6 @@ def delete(id: int, db: Session = Depends(get_db), authentic: bool = Depends(get
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-    place.delete(synchronize_session=False)
+    place.delete()
     db.commit()
     return {"detail": f"Object {id} Deleted"}
