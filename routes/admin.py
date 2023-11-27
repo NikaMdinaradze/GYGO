@@ -42,19 +42,6 @@ def login(response: OAuth2PasswordRequestForm = Depends()):
     return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Username")
 
 
-@router.post("/places", status_code=status.HTTP_201_CREATED)
-def upload(response: schemas.Places, db: Session = Depends(get_db),
-           authentic: bool = Depends(get_current_admin_user)):
-
-    check_authorization(authentic)
-
-    new_place = models.Places(**response.__dict__)
-    db.add(new_place)
-    db.commit()
-    db.refresh(new_place)
-    return {"details": "Place Has Uploaded", "status": status.HTTP_201_CREATED}
-
-
 @router.post("/places/photo", status_code=status.HTTP_201_CREATED)
 async def upload_file(file: UploadFile = File(...), authentic: bool = Depends(get_current_admin_user)):
 
@@ -82,40 +69,3 @@ async def upload_banner(file: UploadFile = File(...), authentic: bool = Depends(
 
     return {'details': 'great success'}
 
-
-@router.put("/places/{place_id}", status_code=status.HTTP_202_ACCEPTED)
-def update(place_id: int, response: schemas.Places, db: Session = Depends(get_db),
-           authentic: bool = Depends(get_current_admin_user)):
-
-    check_authorization(authentic)
-
-    place = db.query(models.Places).filter(models.Places.id == place_id).first()
-    if not place:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object Not Found")
-    dict_response = response.__dict__
-
-    for key, value in dict_response.items():
-        setattr(place, key, value)
-
-    db.commit()
-    return {"details": f"Place {place_id} Has Updated", "status": status.HTTP_202_ACCEPTED}
-
-
-@router.delete('/places/{place_id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete(place_id: int, db: Session = Depends(get_db), authentic: bool = Depends(get_current_admin_user)):
-    place = db.query(models.Places).filter(models.Places.id == place_id)
-
-    check_authorization(authentic)
-
-    photos = place.first().photos_url.split(',')
-    photos.append(place.first().logo)
-
-    for photo in photos:
-        if photo:
-            file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(photo))
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
-    place.delete()
-    db.commit()
-    return {"detail": f"Object {id} Deleted"}

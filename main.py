@@ -4,7 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from routes import admin, user
-
+from sqladmin import Admin
+from admin_panel import authentication_backend, UserAdmin
 
 app = FastAPI()
 
@@ -25,4 +26,7 @@ models.Base.metadata.create_all(engine)
 
 app.include_router(admin.router)
 app.include_router(user.router)
+
+admin = Admin(app=app, engine=engine, authentication_backend=authentication_backend)
+admin.add_view(UserAdmin)
 
