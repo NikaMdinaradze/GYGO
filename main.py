@@ -20,6 +20,7 @@ app.add_middleware(
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="upload")
 app.mount("/banners", StaticFiles(directory="banners"), name="banners")
+app.mount("/tmp", StaticFiles(directory="tmp"), name="tmp")
 
 models.Base.metadata.create_all(engine)
 

@@ -1,7 +1,8 @@
 from sqladmin.authentication import AuthenticationBackend
 from fastapi.requests import Request
-from sqladmin import ModelView, BaseView
+from sqladmin import ModelView
 from models import Places
+from JWT import USERNAME, PASSWORD
 
 
 class UserAdmin(ModelView, model=Places):
@@ -21,8 +22,14 @@ class UserAdmin(ModelView, model=Places):
 
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
-        request.session.update({"token": "..."})
-        return True
+        form = await request.form()
+        username, password = form["username"], form["password"]
+
+        if username == USERNAME and password == PASSWORD:
+            request.session.update({"token": "superduperadmin"})
+            return True
+
+        return False
 
     async def logout(self, request: Request) -> bool:
         request.session.clear()
@@ -31,11 +38,10 @@ class AdminAuth(AuthenticationBackend):
     async def authenticate(self, request: Request) -> bool:
         token = request.session.get("token")
 
-        if not token:
-            return False
+        if token and token == "superduperadmin":
+            return True
 
-        # Check the token in depth
-        return True
+        return False
 
 
 authentication_backend = AdminAuth(secret_key="...")

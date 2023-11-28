@@ -10,9 +10,9 @@ class Places(Base):
     __tablename__ = "places"
 
     id = Column(Integer, primary_key=True, index=True, unique=True)
-    name = Column(String)
-    category = Column(String)
-    logo = Column(ImageType(storage=storage))
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    logo = Column(ImageType(storage=storage), nullable=False)
     photos_url = Column(String)  # is not list instead , are separators
 
     monday_open = Column(Time)
@@ -30,9 +30,9 @@ class Places(Base):
     sunday_open = Column(Time)
     sunday_close = Column(Time)
 
-    description = Column(Text)
-    district = Column(String)
-    full_address = Column(String)
+    description = Column(Text, nullable=False)
+    district = Column(String, nullable=False)
+    full_address = Column(String, nullable=False)
 
     number = Column(String)
     facebook = Column(String)
@@ -42,9 +42,9 @@ class Places(Base):
     discord = Column(String)
     telegram = Column(String)
 
-    main_price = Column(Float)
-    main_visit = Column(String)
+    main_price = Column(Float, nullable=False)
+    main_visit = Column(String, nullable=False)
     custom_price = Column(String)
     map_link = Column(String)
-    views = Column(Integer)
+    views = Column(Integer, default=0, nullable=False)
 
