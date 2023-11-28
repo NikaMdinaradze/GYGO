@@ -33,7 +33,7 @@ def filter_and_search(
     search_conditions = (
         models.Places.name.ilike(f"%{query}%"),
         models.Places.category.ilike(f"%{query}%"),
-        models.Places.district.ilike(f"%{query}%")
+        models.Places.full_address.ilike(f"%{query}%")
     )
 
     places = db.query(models.Places)
